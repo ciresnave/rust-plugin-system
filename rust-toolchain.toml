@@ -1,0 +1,8 @@
+[toolchain]
+channel = "stable"
+components = ["rustfmt", "clippy"]
+profile = "minimal"
+
+# Optionally pin a specific date or nightly if edition 2024 requires it.
+# For example:
+# channel = "nightly-2025-08-01"
