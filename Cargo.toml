@@ -2,6 +2,6 @@
 members = ["plugin-annotations", "plugin-host", "plugin-interface", "plugins/*"]
 
 # Use the edition-2024 resolver (resolver v3) for correct dependency resolution with edition 2024
-workspace.resolver = "3"
+resolver = "3"
 
 # Optional: add workspace-wide settings or patch overrides here in future.
