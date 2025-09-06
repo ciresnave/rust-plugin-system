@@ -1,0 +1,14 @@
+[package]
+name = "plugin-multi"
+version = "0.1.0"
+edition = "2024"
+authors = ["Eric Evans <ciresnave@gmail.com>"]
+repository = "https://github.com/ciresnave/rust-plugin-system"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+plugin-interface = { path = "../../plugin-interface" }
+plugin-annotations = { path = "../../plugin-annotations" }
+inventory = "0.2"

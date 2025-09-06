@@ -1,0 +1,11 @@
+C:\Users\cires\OneDrive\Documents\projects\what-plug\rust-plugin-system\plugin-interface\target\debug\deps\notify-2b950a5a3479ce14.d: C:\Users\cires\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\notify-5.2.0\src\lib.rs C:\Users\cires\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\notify-5.2.0\src\windows.rs C:\Users\cires\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\notify-5.2.0\src\event.rs C:\Users\cires\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\notify-5.2.0\src\null.rs C:\Users\cires\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\notify-5.2.0\src\poll.rs C:\Users\cires\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\notify-5.2.0\src\config.rs C:\Users\cires\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\notify-5.2.0\src\error.rs
+
+C:\Users\cires\OneDrive\Documents\projects\what-plug\rust-plugin-system\plugin-interface\target\debug\deps\libnotify-2b950a5a3479ce14.rmeta: C:\Users\cires\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\notify-5.2.0\src\lib.rs C:\Users\cires\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\notify-5.2.0\src\windows.rs C:\Users\cires\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\notify-5.2.0\src\event.rs C:\Users\cires\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\notify-5.2.0\src\null.rs C:\Users\cires\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\notify-5.2.0\src\poll.rs C:\Users\cires\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\notify-5.2.0\src\config.rs C:\Users\cires\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\notify-5.2.0\src\error.rs
+
+C:\Users\cires\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\notify-5.2.0\src\lib.rs:
+C:\Users\cires\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\notify-5.2.0\src\windows.rs:
+C:\Users\cires\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\notify-5.2.0\src\event.rs:
+C:\Users\cires\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\notify-5.2.0\src\null.rs:
+C:\Users\cires\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\notify-5.2.0\src\poll.rs:
+C:\Users\cires\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\notify-5.2.0\src\config.rs:
+C:\Users\cires\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\notify-5.2.0\src\error.rs:

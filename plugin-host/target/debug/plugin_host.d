@@ -1,0 +1,1 @@
+C:\Users\cires\OneDrive\Documents\projects\what-plug\rust-plugin-system\plugin-host\target\debug\plugin_host.dll: C:\Users\cires\OneDrive\Documents\projects\what-plug\rust-plugin-system\plugin-host\src\main.rs C:\Users\cires\OneDrive\Documents\projects\what-plug\rust-plugin-system\plugin-host\src\plugin_manager.rs

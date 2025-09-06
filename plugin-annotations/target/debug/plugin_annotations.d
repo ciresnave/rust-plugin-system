@@ -1,0 +1,1 @@
+C:\Users\cires\OneDrive\Documents\projects\what-plug\rust-plugin-system\plugin-annotations\target\debug\plugin_annotations.dll: C:\Users\cires\OneDrive\Documents\projects\what-plug\rust-plugin-system\plugin-annotations\src\lib.rs

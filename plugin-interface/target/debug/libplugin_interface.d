@@ -1,0 +1,1 @@
+C:\Users\cires\OneDrive\Documents\projects\what-plug\rust-plugin-system\plugin-interface\target\debug\libplugin_interface.rlib: C:\Users\cires\OneDrive\Documents\projects\what-plug\rust-plugin-system\plugin-interface\src\lib.rs

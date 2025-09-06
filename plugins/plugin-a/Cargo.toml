@@ -1,0 +1,12 @@
+[package]
+name = "plugin-a"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+plugin-interface = { path = "../../plugin-interface" }
+plugin-annotations = { path = "../../plugin-annotations" }
+inventory = "0.2"
