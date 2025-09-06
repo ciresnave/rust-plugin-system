@@ -1,0 +1,9 @@
+[workspace]
+members = [
+  "plugin-annotations",
+  "plugin-host",
+  "plugin-interface",
+  "plugins/*",
+]
+
+# Optional: add workspace-wide settings or patch overrides here in future.
