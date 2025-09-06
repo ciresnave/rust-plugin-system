@@ -1,0 +1,26 @@
+# Ignore Rust build artifacts
+/target/
+**/target/
+
+# Cargo generated files
+/Cargo.lock
+
+# IDE/editor
+.vscode/
+.idea/
+
+# Plugin host artifacts and scripts output
+plugin-host/plugins_out/
+
+# macOS
+.DS_Store
+
+# Visual Studio / Windows
+*.pdb
+*.exp
+*.lib
+*.dll
+
+# Debug/coverage
+coverage/
+.cache/
