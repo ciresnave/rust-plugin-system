@@ -3,7 +3,7 @@
 **/target/
 
 # Cargo generated files
-/Cargo.lock
+# (Intentionally tracked workspace Cargo.lock so CI can use --locked)
 
 # IDE/editor
 .vscode/
