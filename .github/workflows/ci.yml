@@ -53,6 +53,19 @@ jobs:
         run: |
           pwsh -NoProfile -NonInteractive -Command "& './scripts/build_plugins.ps1' -buildProfile 'debug'"
 
+      - name: List built plugin artifacts (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: |
+          echo "Listing plugins/*/target/debug"
+          for d in plugins/*/target/debug; do echo "--- $d"; ls -la "$d" || true; done
+          echo "Listing plugin-host/plugins_out"
+          ls -la plugin-host/plugins_out || true
+
+      - name: List built plugin artifacts (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          pwsh -NoProfile -NonInteractive -Command "Write-Host 'Listing plugins/*/target/debug'; Get-ChildItem -Recurse -Force -Path plugins -Filter 'target' | ForEach-Object { Write-Host '---' $_.FullName; Get-ChildItem -Path ($_.FullName + '\\debug') -Force -ErrorAction SilentlyContinue }; Write-Host 'Listing plugin-host/plugins_out'; Get-ChildItem -Path plugin-host\plugins_out -Force -ErrorAction SilentlyContinue"
+
       - name: Run workspace tests
         run: |
           cargo test --all --workspace --locked
