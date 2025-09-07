@@ -1,138 +1,119 @@
 name: CI
 
 on:
-  name: CI
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
 
-  on:
-  name: CI
+jobs:
+  test-matrix:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-  on:
-    push:
-      branches: [ main, master ]
-    pull_request:
-      branches: [ main, master ]
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-registry-
 
-  jobs:
-    test-matrix:
-      strategy:
-        matrix:
-          os: [ubuntu-latest, windows-latest, macos-latest]
-      runs-on: ${{ matrix.os }}
-      defaults:
-        run:
-          shell: bash
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v4
+      - name: Cache target
+        uses: actions/cache@v4
+        with:
+          path: target
+          key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-target-
 
-        - name: Cache cargo registry
-          uses: actions/cache@v4
-          with:
-            path: |
-              ~/.cargo/registry
-              ~/.cargo/git
-            key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
-            restore-keys: |
-              ${{ runner.os }}-cargo-registry-
+      - name: Setup Rust (stable)
+        run: |
+          rustup toolchain install stable
+          rustup default stable
 
-        - name: Cache target
-          uses: actions/cache@v4
-          with:
-            path: target
-            key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.lock') }}
-            restore-keys: |
-              ${{ runner.os }}-cargo-target-
+      - name: Build plugin crates (non-Windows)
+        if: matrix.os != 'windows-latest'
+        run: |
+          bash ./scripts/build_plugins.sh
 
-        - name: Setup Rust (stable)
-          run: |
-            rustup toolchain install stable
-            rustup default stable
+      - name: Build plugin crates (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          & ./scripts/build_plugins.ps1 -buildProfile 'debug'
 
-        - name: Build plugin crates in-place (non-Windows)
-          if: matrix.os != 'windows-latest'
-          run: |
-            # Build each plugin from its directory so plugins/*/target/debug contains cdylib artifacts
-            bash ./scripts/build_plugins.sh
+      - name: "Pre-test List plugin artifacts - non-Windows"
+        if: matrix.os != 'windows-latest'
+        run: |
+          echo '=== START CI PLUGINS LISTING ==='
+          for d in plugins/*/target/debug; do echo "+++ $d"; ls -la "$d" || true; done
+          echo 'Listing plugin-host/plugins_out'
+          ls -la plugin-host/plugins_out || true
+          echo '=== END CI PLUGINS LISTING ==='
 
-        - name: Build plugin crates in-place (Windows)
-          if: matrix.os == 'windows-latest'
-          shell: pwsh
-          run: |
-            # Build each plugin from its directory so plugins/*/target/debug contains cdylib artifacts
-            & ./scripts/build_plugins.ps1 -buildProfile 'debug'
+      - name: "Pre-test List plugin artifacts - Windows"
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          Write-Host '=== START CI PLUGINS LISTING ==='
+          Get-ChildItem -Path plugins -Recurse -Force -ErrorAction SilentlyContinue | Where-Object { $_.FullName -like '*\\target\\debug*' } | ForEach-Object { Write-Host '+++ ' $_.FullName; Get-ChildItem -Path ($_.FullName) -Force -ErrorAction SilentlyContinue }
+          Write-Host 'Listing plugin-host/plugins_out'
+          Get-ChildItem -Path plugin-host\\plugins_out -Force -ErrorAction SilentlyContinue
+          Write-Host '=== END CI PLUGINS LISTING ==='
 
-        - name: Pre-test: Build & List plugin artifacts (non-Windows)
-          if: matrix.os != 'windows-latest'
-          run: |
-            echo "=== START CI PLUGINS LISTING ==="
-            set -x
-            # Ensure plugins are built in-place (idempotent) and list targets so logs show files
-            bash ./scripts/build_plugins.sh || true
-            echo "Listing plugins/*/target/debug (post-build)"
-            for d in plugins/*/target/debug; do echo "+++ $d"; ls -la "$d" || true; done
-            echo "Listing plugin-host/plugins_out (post-build)"
-            ls -la plugin-host/plugins_out || true
-            echo "=== END CI PLUGINS LISTING ==="
+      - name: Run workspace tests
+        run: |
+          cargo test --all --workspace --locked
 
-        - name: Pre-test: Build & List plugin artifacts (Windows)
-          if: matrix.os == 'windows-latest'
-          shell: pwsh
-          run: |
-            Write-Host '=== START CI PLUGINS LISTING ==='
-            & ./scripts/build_plugins.ps1 -buildProfile 'debug' -SkipBuild:$false
-            Write-Host 'Listing plugins/*/target/debug (post-build)'
-            Get-ChildItem -Path plugins -Recurse -Force -ErrorAction SilentlyContinue | Where-Object { $_.FullName -like '*\\target\\debug*' } | ForEach-Object {
-              Write-Host '+++ ' $_.FullName
-              Get-ChildItem -Path ($_.FullName) -Force -ErrorAction SilentlyContinue
-            }
-            Write-Host 'Listing plugin-host/plugins_out (post-build)'
-            Get-ChildItem -Path plugin-host\\plugins_out -Force -ErrorAction SilentlyContinue
-            Write-Host '=== END CI PLUGINS LISTING ==='
+      - name: Run plugin-interface tests with watch feature
+        run: |
+          cargo test -p plugin-interface --features watch --locked
 
-        - name: Run workspace tests
-          run: |
-            cargo test --all --workspace --locked
+      - name: Upload plugin artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: plugin-artifacts-${{ matrix.os }}
+          path: plugin-host/plugins_out/**
+          retention-days: 7
 
-        - name: Run plugin-interface tests with watch feature
-          run: |
-            cargo test -p plugin-interface --features watch --locked
+  clippy:
+    needs: test-matrix
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        toolchain: [stable, nightly]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-        # plugin build steps above already copy artifacts into plugin-host/plugins_out
+      - name: Cache cargo registry and target (clippy)
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: clippy-${{ matrix.os }}-${{ matrix.toolchain }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            clippy-${{ matrix.os }}-${{ matrix.toolchain }}-
 
-        - name: Upload plugin artifacts
-          uses: actions/upload-artifact@v4
-          with:
-            name: plugin-artifacts-${{ matrix.os }}
-            path: plugin-host/plugins_out/**
-            retention-days: 7
+      - name: Install Rust toolchain
+        run: |
+          rustup toolchain install ${{ matrix.toolchain }}
+          rustup component add clippy --toolchain ${{ matrix.toolchain }}
 
-    clippy:
-      needs: test-matrix
-      strategy:
-        matrix:
-          os: [ubuntu-latest, windows-latest]
-          toolchain: [stable, nightly]
-      runs-on: ${{ matrix.os }}
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v4
-
-        - name: Cache cargo registry and target (clippy)
-          uses: actions/cache@v4
-          with:
-            path: |
-              ~/.cargo/registry
-              ~/.cargo/git
-              target
-            key: clippy-${{ matrix.os }}-${{ matrix.toolchain }}-${{ hashFiles('**/Cargo.lock') }}
-            restore-keys: |
-              clippy-${{ matrix.os }}-${{ matrix.toolchain }}-
-
-        - name: Install Rust toolchain
-          run: |
-            rustup toolchain install ${{ matrix.toolchain }}
-            rustup component add clippy --toolchain ${{ matrix.toolchain }}
-
-        - name: Run cargo clippy
-          run: |
-            cargo +${{ matrix.toolchain }} clippy --all-targets --all-features -- -D warnings
+      - name: Run cargo clippy
+        run: |
+          cargo +${{ matrix.toolchain }} clippy --all-targets --all-features -- -D warnings
