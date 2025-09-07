@@ -42,11 +42,16 @@ jobs:
           rustup toolchain install stable
           rustup default stable
 
-      - name: Build plugin crates for tests
+      - name: Build plugin crates in-place (Linux/macOS)
+        if: runner.os != 'Windows'
         run: |
-          # Build the plugin crates so their cdylib artifacts exist under target/debug
-          # Tests in plugin-host load the shared libraries directly from plugins/*/target/debug
-          cargo build -p plugin-a -p plugin-b -p plugin-multi --locked
+          # Build each plugin from its directory so plugins/*/target/debug contains cdylib artifacts
+          bash ./scripts/build_plugins.sh
+
+      - name: Build plugin crates in-place (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          pwsh -NoProfile -NonInteractive -Command "& './scripts/build_plugins.ps1' -buildProfile 'debug'"
 
       - name: Run workspace tests
         run: |
@@ -56,17 +61,7 @@ jobs:
         run: |
           cargo test -p plugin-interface --features watch --locked
 
-      - name: Copy plugin artifacts into plugins_out (Linux/macOS)
-        if: runner.os != 'Windows'
-        run: |
-          # We already built the plugin crates above; run the helper script in copy-only mode
-          bash ./scripts/build_plugins.sh --skip-build
-
-      - name: Copy plugin artifacts into plugins_out (Windows)
-        if: runner.os == 'Windows'
-        run: |
-          # Use PowerShell helper in skip-build mode (we already ran cargo build above)
-          pwsh -NoProfile -NonInteractive -Command "& './scripts/build_plugins.ps1' -buildProfile 'debug' -SkipBuild"
+      # plugin build steps above already copy artifacts into plugin-host/plugins_out
 
       - name: Upload plugin artifacts
         uses: actions/upload-artifact@v4
