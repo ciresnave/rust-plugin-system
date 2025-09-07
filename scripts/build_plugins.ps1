@@ -4,7 +4,8 @@ Usage: .\scripts\build_plugins.ps1
 #>
 
 param(
-  [string]$buildProfile = 'debug'
+  [string]$buildProfile = 'debug',
+  [switch]$SkipBuild
 )
 
 # Determine workspace root (parent of the scripts/ directory)
@@ -17,10 +18,13 @@ if (!(Test-Path $plugins_out)) { New-Item -ItemType Directory -Path $plugins_out
 
 $plugins = Get-ChildItem -Directory -Path "$root\plugins" | Where-Object { Test-Path (Join-Path $_.FullName 'Cargo.toml') }
 foreach ($p in $plugins) {
-  Write-Host "Building plugin: $($p.Name)"
-  Push-Location $p.FullName
-  cargo build
-  Pop-Location
+  Write-Host "Processing plugin: $($p.Name)"
+  if (-not $SkipBuild) {
+    Write-Host "Building plugin: $($p.Name)"
+    Push-Location $p.FullName
+    cargo build
+    Pop-Location
+  }
 
   # Try common artifact names
   $artifact_candidates = @()

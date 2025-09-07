@@ -56,15 +56,17 @@ jobs:
         run: |
           cargo test -p plugin-interface --features watch --locked
 
-      - name: Build plugin artifacts (Linux/macOS)
+      - name: Copy plugin artifacts into plugins_out (Linux/macOS)
         if: runner.os != 'Windows'
         run: |
-          bash ./scripts/build_plugins.sh
+          # We already built the plugin crates above; run the helper script in copy-only mode
+          bash ./scripts/build_plugins.sh --skip-build
 
-      - name: Build plugin artifacts (Windows)
+      - name: Copy plugin artifacts into plugins_out (Windows)
         if: runner.os == 'Windows'
         run: |
-          pwsh -NoProfile -NonInteractive -Command "& './scripts/build_plugins.ps1' -buildProfile 'debug'"
+          # Use PowerShell helper in skip-build mode (we already ran cargo build above)
+          pwsh -NoProfile -NonInteractive -Command "& './scripts/build_plugins.ps1' -buildProfile 'debug' -SkipBuild"
 
       - name: Upload plugin artifacts
         uses: actions/upload-artifact@v4
