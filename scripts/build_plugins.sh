@@ -23,8 +23,9 @@ for p in "$PLUGINS_DIR"/*/; do
     NAME=$(basename "$p")
     echo "Processing plugin: $NAME"
     if [ "$SKIP_BUILD" = false ]; then
-      echo "Building plugin: $NAME"
-      (cd "$p" && cargo build)
+      echo "Building plugin: $NAME (target-dir: $p/target)"
+      # Use --manifest-path and --target-dir so artifacts go into the plugin's target directory
+      cargo build --manifest-path "$p/Cargo.toml" --target-dir "$p/target"
     else
       echo "Skipping build for plugin: $NAME (copy-only mode)"
     fi
