@@ -1,0 +1,32 @@
+name: Clippy (fast)
+
+on:
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  clippy-fast:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: clippy-fast-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            clippy-fast-cargo-registry-
+
+      - name: Setup Rust (stable)
+        run: |
+          rustup toolchain install stable
+          rustup default stable
+          rustup component add clippy --toolchain stable
+
+      - name: Run cargo clippy (fast)
+        run: |
+          cargo +stable clippy --all-targets --all-features -- -D warnings
