@@ -26,9 +26,14 @@ fn plugin_source_dir(name: &str) -> PathBuf {
 
 fn build_plugin(name: &str) {
     let src = plugin_source_dir(name);
+    let manifest = src.join("Cargo.toml");
+    let target_dir = src.join("target");
     let status = std::process::Command::new("cargo")
         .arg("build")
-        .current_dir(&src)
+        .arg("--manifest-path")
+        .arg(manifest)
+        .arg("--target-dir")
+        .arg(target_dir)
         .status()
         .expect("failed to spawn cargo build");
     assert!(status.success(), "cargo build failed for plugin {}", name);
