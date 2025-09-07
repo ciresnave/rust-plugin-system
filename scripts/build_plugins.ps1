@@ -14,7 +14,13 @@ $root = Split-Path -Parent $script_dir
 Set-Location $root
 
 $plugins_out = Join-Path $root 'plugin-host' 'plugins_out'
-if (!(Test-Path $plugins_out)) { New-Item -ItemType Directory -Path $plugins_out | Out-Null }
+# Clean plugins_out to avoid stale artifacts from previous runs
+if (Test-Path $plugins_out) {
+  Write-Host "Cleaning existing plugins_out: $plugins_out"
+  Get-ChildItem -Path $plugins_out -File | Remove-Item -Force
+} else {
+  New-Item -ItemType Directory -Path $plugins_out | Out-Null
+}
 
 $plugins = Get-ChildItem -Directory -Path "$root\plugins" | Where-Object { Test-Path (Join-Path $_.FullName 'Cargo.toml') }
 foreach ($p in $plugins) {

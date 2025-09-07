@@ -5,7 +5,13 @@ set -euo pipefail
 ROOT_DIR=$(cd "$(dirname "$0")/.." && pwd)
 PLUGINS_DIR="$ROOT_DIR/plugins"
 OUT_DIR="$ROOT_DIR/plugin-host/plugins_out"
-mkdir -p "$OUT_DIR"
+# Clean plugins_out to avoid stale artifacts from previous runs
+if [ -d "$OUT_DIR" ]; then
+  echo "Cleaning existing plugins_out: $OUT_DIR"
+  rm -f "$OUT_DIR"/* || true
+else
+  mkdir -p "$OUT_DIR"
+fi
 
 SKIP_BUILD=false
 if [[ "${1:-}" == "--skip-build" || "${1:-}" == "--no-build" ]]; then
