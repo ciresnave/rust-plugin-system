@@ -1,5 +1,7 @@
 # What-Plug — Rust plugin ABI prototype
 
+[![Clippy](https://github.com/ciresnave/rust-plugin-system/actions/workflows/clippy-fast.yml/badge.svg?branch=main)](https://github.com/ciresnave/rust-plugin-system/actions/workflows/clippy-fast.yml)
+
 This workspace contains a small prototype demonstrating a Rust plugin ABI implemented
 using a proc-macro (`plugin-annotations`) and a small shared interface crate
 (`plugin-interface`). The host (`plugin-host`) dynamically loads plugin crates built
