@@ -412,17 +412,15 @@ impl PluginManager {
                                     }
                                 }
                             }
+                        } else if opts.emit_proxies && trait_id == PluginTrait::Greeter {
+                            let cont = callback(WatchEvent::Proxies(Vec::new(), ready.clone()));
+                            if !cont {
+                                break;
+                            }
                         } else {
-                            if opts.emit_proxies && trait_id == PluginTrait::Greeter {
-                                let cont = callback(WatchEvent::Proxies(Vec::new(), ready.clone()));
-                                if !cont {
-                                    break;
-                                }
-                            } else {
-                                let cont = callback(WatchEvent::Handles(Vec::new(), ready.clone()));
-                                if !cont {
-                                    break;
-                                }
+                            let cont = callback(WatchEvent::Handles(Vec::new(), ready.clone()));
+                            if !cont {
+                                break;
                             }
                         }
                     }

@@ -46,7 +46,7 @@ fn watcher_auto_loads_new_plugin() {
     let copy_path = candidate.clone();
     let dir_clone = dir.clone();
 
-    let mut saw_handles = std::sync::Arc::new(std::sync::Mutex::new(false));
+    let saw_handles = std::sync::Arc::new(std::sync::Mutex::new(false));
     let saw_handles_clone = saw_handles.clone();
 
     std::thread::spawn(move || {
