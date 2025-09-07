@@ -18,7 +18,8 @@ $plugins_out = Join-Path $root 'plugin-host' 'plugins_out'
 if (Test-Path $plugins_out) {
   Write-Host "Cleaning existing plugins_out: $plugins_out"
   Get-ChildItem -Path $plugins_out -File | Remove-Item -Force
-} else {
+}
+else {
   New-Item -ItemType Directory -Path $plugins_out | Out-Null
 }
 
@@ -57,6 +58,24 @@ foreach ($p in $plugins) {
       break
     }
   }
+
+    # On macOS create a .so shim if only .dylib exists and tests expect .so
+    if (-not $IsWindows -and $IsMacOS) {
+      $dylib = Join-Path $p.FullName "target\$buildProfile\lib$($p.Name).dylib"
+      $dylib_alt = Join-Path $p.FullName "target\$buildProfile\lib$($p.Name -replace '-', '_').dylib"
+      $so = Join-Path $p.FullName "target\$buildProfile\lib$($p.Name).so"
+      $so_alt = Join-Path $p.FullName "target\$buildProfile\lib$($p.Name -replace '-', '_').so"
+      if ((Test-Path $dylib) -and -not (Test-Path $so)) {
+        Copy-Item -Path $dylib -Destination $so -Force
+        Write-Host "Created .so shim from .dylib: $so"
+        if (Test-Path $so) { Copy-Item -Path $so -Destination $plugins_out -Force; Write-Host "Copied lib*.so to plugins_out" }
+      }
+      elseif ((Test-Path $dylib_alt) -and -not (Test-Path $so_alt)) {
+        Copy-Item -Path $dylib_alt -Destination $so_alt -Force
+        Write-Host "Created .so shim from .dylib: $so_alt"
+        if (Test-Path $so_alt) { Copy-Item -Path $so_alt -Destination $plugins_out -Force; Write-Host "Copied lib*_alt.so to plugins_out" }
+      }
+    }
 
   if (-not $built) {
     Write-Warning "Could not find built artifact for plugin $($p.Name)"

@@ -29,6 +29,23 @@ for p in "$PLUGINS_DIR"/*/; do
       echo "Skipping build for plugin: $NAME (copy-only mode)"
     fi
 
+    # On macOS, cargo produces .dylib; some tests expect .so — create a .so shim if needed
+    uname_s=$(uname -s || true)
+    if [ "$uname_s" = "Darwin" ]; then
+      # canonical names
+      dylib_candidate="$p/target/debug/lib${NAME}.dylib"
+      dylib_candidate2="$p/target/debug/lib${NAME//-/_}.dylib"
+      so_candidate="$p/target/debug/lib${NAME}.so"
+      so_candidate2="$p/target/debug/lib${NAME//-/_}.so"
+      if [ -f "$dylib_candidate" ] && [ ! -f "$so_candidate" ]; then
+        echo "Creating .so shim for $NAME from .dylib"
+        cp "$dylib_candidate" "$so_candidate"
+      elif [ -f "$dylib_candidate2" ] && [ ! -f "$so_candidate2" ]; then
+        echo "Creating .so shim for ${NAME//-/_} from .dylib"
+        cp "$dylib_candidate2" "$so_candidate2"
+      fi
+    fi
+
     candidates=("lib${NAME}.so" "lib${NAME//-/_}.so" "lib${NAME}.dylib" "lib${NAME//-/_}.dylib" "${NAME}.dll" "${NAME//-/_}.dll")
     found=false
     for cand in "${candidates[@]}"; do
