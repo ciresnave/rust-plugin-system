@@ -169,8 +169,9 @@ pub fn plugin_impl(attr: TokenStream, item: TokenStream) -> TokenStream {
         );
         let field_ident = Ident::new(name.as_str(), proc_macro2::Span::call_site());
 
-        let wrapper = if *has_str_arg && *ret_is_str {
+            let wrapper = if *has_str_arg && *ret_is_str {
             quote! {
+                #[allow(clippy::not_unsafe_ptr_arg_deref)]
                 #[no_mangle]
                 pub extern "C" fn #wrapper_ident(user_data: *mut std::ffi::c_void, arg: *const std::os::raw::c_char) -> *const std::os::raw::c_char {
                     let instance = unsafe { &*(user_data as *const #self_ty) };
@@ -187,6 +188,7 @@ pub fn plugin_impl(attr: TokenStream, item: TokenStream) -> TokenStream {
             }
         } else if *has_str_arg {
             quote! {
+                #[allow(clippy::not_unsafe_ptr_arg_deref)]
                 #[no_mangle]
                 pub extern "C" fn #wrapper_ident(user_data: *mut std::ffi::c_void, arg: *const std::os::raw::c_char) {
                     let instance = unsafe { &*(user_data as *const #self_ty) };
@@ -199,6 +201,7 @@ pub fn plugin_impl(attr: TokenStream, item: TokenStream) -> TokenStream {
             }
         } else if *ret_is_str {
             quote! {
+                #[allow(clippy::not_unsafe_ptr_arg_deref)]
                 #[no_mangle]
                 pub extern "C" fn #wrapper_ident(user_data: *mut std::ffi::c_void) -> *const std::os::raw::c_char {
                     let instance = unsafe { &*(user_data as *const #self_ty) };
@@ -213,6 +216,7 @@ pub fn plugin_impl(attr: TokenStream, item: TokenStream) -> TokenStream {
             }
         } else {
             quote! {
+                #[allow(clippy::not_unsafe_ptr_arg_deref)]
                 #[no_mangle]
                 pub extern "C" fn #wrapper_ident(user_data: *mut std::ffi::c_void) {
                     let instance = unsafe { &*(user_data as *const #self_ty) };
